@@ -14,13 +14,15 @@ cargo run
 
 - [x] Creating grid
 - [ ] Tetrimonioes
-  - [ ] Drop with correct drop speed
+  - [x] Spawn tetrimino
+  - [x] Draw(Render) tetrimino
+  - [ ] Soft Drop
+    - [ ] Drop with correct drop speed
   - [ ] Preview landing spot
 - [ ] Random "bag" - tetriminoes generation
   - [ ] Show next tetrimino
 - [ ] Controls for tetriminoes
   - [ ] Move tetrimino
-    - [ ] Soft Drop
     - [ ] Hard Drop
   - [ ] Rotate tetrimino
   - [ ] Hold tetrimino
