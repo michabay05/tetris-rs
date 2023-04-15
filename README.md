@@ -20,10 +20,12 @@ cargo run
     - [ ] Drop with correct drop speed
   - [ ] Preview landing spot
 - [ ] Random "bag" - tetriminoes generation
+  - [x] Generate a list of tetriminoes in a "virtual bag"
   - [ ] Show next tetrimino
 - [ ] Controls for tetriminoes
   - [ ] Move tetrimino
     - [ ] Hard Drop
+    - [ ] Soft Drop (Additional on down key press) 
   - [ ] Rotate tetrimino
   - [ ] Hold tetrimino
 

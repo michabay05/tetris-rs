@@ -1,6 +1,7 @@
 use crate::{BACKGROUND_COLOR, SCREEN_HEIGHT, SCREEN_WIDTH};
 use std::ops::Div;
 
+use rand::Rng;
 use raylib::prelude::*;
 
 const O_COLOR: &str = "e0d724";
@@ -11,7 +12,7 @@ const J_COLOR: &str = "e88120";
 const S_COLOR: &str = "32db43";
 const Z_COLOR: &str = "db3232";
 
-#[derive(Default, PartialEq, Copy, Clone)]
+#[derive(Debug, Default, PartialEq, Copy, Clone)]
 enum Tetrimino {
     // TODO: Find a way to fix this '#[default]' because the O-tetrimino is obviously not the default
     #[default]
@@ -31,8 +32,9 @@ pub const GRID_HEIGHT: usize = 20;
 pub struct Tetris {
     // grid[row #][col #]
     grid: [[Option<Tetrimino>; GRID_WIDTH]; GRID_HEIGHT],
-    current: Tetrimino,
-    held: Tetrimino,
+    bag: [Tetrimino; 7],
+    current: usize,
+    held: usize,
 }
 
 const O_OFFSETS: [(i32, i32); 4] = [(0, 0), (0, 1), (1, 0), (1, 1)];
@@ -45,8 +47,7 @@ const Z_OFFSETS: [(i32, i32); 4] = [(0, 0), (0, 1), (-1, 0), (1, 1)];
 
 impl Tetris {
     fn add(&mut self, tetrimino: Tetrimino) -> bool {
-        let t = Tetrimino::Z;
-        let offsets = match t {
+        let offsets = match tetrimino {
             Tetrimino::O => O_OFFSETS,
             Tetrimino::I => I_OFFSETS,
             Tetrimino::T => T_OFFSETS,
@@ -57,9 +58,31 @@ impl Tetris {
         };
         let center = (0, 4);
         for (x_off, y_off) in offsets {
-            self.grid[(center.0 + y_off) as usize][(center.1 + x_off) as usize] = Some(t);
+            self.grid[(center.0 + y_off) as usize][(center.1 + x_off) as usize] = Some(tetrimino);
         }
-        return true;
+        true
+    }
+
+    fn generate_bag(&mut self) {
+        let mut rng = rand::thread_rng();
+        let mut list = vec![
+            Tetrimino::O,
+            Tetrimino::I,
+            Tetrimino::T,
+            Tetrimino::L,
+            Tetrimino::J,
+            Tetrimino::S,
+            Tetrimino::Z,
+        ];
+
+        let mut bag_ind = 0;
+        while list.len() != 1 {
+            let random_ind: usize = rng.gen_range(0..list.len());
+            println!("Random num: {random_ind}");
+            self.bag[bag_ind] = list.remove(random_ind);
+            bag_ind += 1;
+        }
+        self.bag[bag_ind] = list.remove(0);
     }
 
     fn soft_drop(&mut self) {
@@ -73,9 +96,7 @@ impl Tetris {
     }
 }
 
-pub fn update(tetris: &mut Tetris) {
-    tetris.add(Tetrimino::L);
-}
+pub fn update(tetris: &mut Tetris) {}
 
 pub fn render(d: &mut RaylibDrawHandle, tetris: &Tetris) {
     draw_grid(d, tetris);
