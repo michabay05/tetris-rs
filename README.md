@@ -5,16 +5,17 @@
 Make sure `cargo` is installed beforehand
 
 ```
-cargo r
+cargo run
 ```
 
 ## ROADMAP
 
-- [ ] Creating grid
+- [x] Creating grid
 - [ ] Tetrimonioes
   - [ ] Drop with correct drop speed
   - [ ] Preview landing spot
 - [ ] Random "bag" - tetrominoes generation
+  - [ ] Show next tetromino
 - [ ] Controls for tetrominoes
   - [ ] Move tetromino
     - [ ] Soft Drop
