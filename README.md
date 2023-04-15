@@ -5,6 +5,8 @@
 Make sure `cargo` is installed beforehand
 
 ```
+git clone https://github.com/michabay05/tetris-rs
+cd tetris-rs
 cargo run
 ```
 
