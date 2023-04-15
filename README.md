@@ -16,13 +16,14 @@ cargo run
 - [ ] Tetrimonioes
   - [ ] Drop with correct drop speed
   - [ ] Preview landing spot
-- [ ] Random "bag" - tetrominoes generation
-  - [ ] Show next tetromino
-- [ ] Controls for tetrominoes
-  - [ ] Move tetromino
+- [ ] Random "bag" - tetriminoes generation
+  - [ ] Show next tetrimino
+- [ ] Controls for tetriminoes
+  - [ ] Move tetrimino
     - [ ] Soft Drop
     - [ ] Hard Drop
-  - [ ] Rotate tetromino
+  - [ ] Rotate tetrimino
+  - [ ] Hold tetrimino
 
 ## Sources
 
