@@ -22,6 +22,7 @@ cargo run
 - [ ] Random "bag" - tetriminoes generation
   - [x] Generate a list of tetriminoes in a "virtual bag"
   - [ ] Show next tetrimino
+  - [ ] Show held tetrimino
 - [ ] Controls for tetriminoes
   - [ ] Move tetrimino
     - [ ] Hard Drop

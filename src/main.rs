@@ -12,11 +12,13 @@ fn main() {
     let (mut rl, thread) = raylib::init()
         .size(SCREEN_WIDTH, SCREEN_HEIGHT)
         .title("tetris-rs")
+        // .msaa_4x()
         .build();
 
     rl.set_target_fps(60);
 
     let mut tetris = Tetris::default();
+    init_game(&mut tetris);
 
     while !rl.window_should_close() {
         // INPUT PHASE
@@ -31,6 +33,10 @@ fn main() {
         let d = rl.begin_drawing(&thread);
         render(d, &tetris);
     }
+}
+
+fn init_game(tetris: &mut Tetris) {
+    tetris::init(tetris);
 }
 
 enum Actions {
