@@ -17,13 +17,14 @@ cargo run
   - [x] Spawn tetrimino
   - [x] Draw(Render) tetrimino
   - [ ] Soft Drop
+    - [x] Check if piece can move down first
     - [ ] Drop with correct drop speed
   - [ ] Preview landing spot
 - [ ] Random "bag" - tetriminoes generation
   - [x] Generate a list of tetriminoes in a "virtual bag"
   - [x] Show next tetrimino
   - [ ] Show held tetrimino
-  - [ ] Update bag when the current tetrimino hits the floor
+  - [x] Update bag when the current tetrimino hits the floor
 - [ ] Controls for tetriminoes
   - [ ] Move tetrimino
     - [ ] Hard Drop
