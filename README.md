@@ -21,8 +21,9 @@ cargo run
   - [ ] Preview landing spot
 - [ ] Random "bag" - tetriminoes generation
   - [x] Generate a list of tetriminoes in a "virtual bag"
-  - [ ] Show next tetrimino
+  - [x] Show next tetrimino
   - [ ] Show held tetrimino
+  - [ ] Update bag when the current tetrimino hits the floor
 - [ ] Controls for tetriminoes
   - [ ] Move tetrimino
     - [ ] Hard Drop

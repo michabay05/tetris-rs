@@ -25,19 +25,21 @@ enum TetriminoTypes {
     Z,
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct Tetrimino {
-    kind: Option<TetriminoTypes>,
     row: usize,
     col: usize,
+    bag_ind: Option<usize>,
+    is_current: bool,
 }
 
 impl Tetrimino {
-    fn new(tetrimino: Option<TetriminoTypes>, row: usize, col: usize) -> Self {
+    fn new(row: usize, col: usize) -> Self {
         Self {
-            kind: tetrimino,
             row,
             col,
+            bag_ind: None,
+            is_current: false,
         }
     }
 }
@@ -45,7 +47,7 @@ impl Tetrimino {
 pub const GRID_WIDTH: usize = 10;
 pub const GRID_HEIGHT: usize = 20;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Tetris {
     // Contains the entire tetris grid
     // grid[row #][col #]
@@ -66,42 +68,51 @@ const J_OFFSETS: [(i32, i32); 4] = [(0, 1), (1, 1), (2, 1), (2, 0)];
 const S_OFFSETS: [(i32, i32); 4] = [(0, 0), (0, 1), (-1, 1), (1, 0)];
 const Z_OFFSETS: [(i32, i32); 4] = [(0, 0), (0, 1), (-1, 0), (1, 1)];
 
-fn get_tetrimino_offsets(tetrimino: &TetriminoTypes) -> [(i32, i32); 4] {
-    match tetrimino {
-        TetriminoTypes::O => O_OFFSETS,
-        TetriminoTypes::I => I_OFFSETS,
-        TetriminoTypes::T => T_OFFSETS,
-        TetriminoTypes::L => L_OFFSETS,
-        TetriminoTypes::J => J_OFFSETS,
-        TetriminoTypes::S => S_OFFSETS,
-        TetriminoTypes::Z => Z_OFFSETS,
+fn get_tetrimino_offsets(tetrimino: Option<TetriminoTypes>) -> [(i32, i32); 4] {
+    if let Some(mino) = tetrimino {
+        return match mino {
+            TetriminoTypes::O => O_OFFSETS,
+            TetriminoTypes::I => I_OFFSETS,
+            TetriminoTypes::T => T_OFFSETS,
+            TetriminoTypes::L => L_OFFSETS,
+            TetriminoTypes::J => J_OFFSETS,
+            TetriminoTypes::S => S_OFFSETS,
+            TetriminoTypes::Z => Z_OFFSETS,
+        };
     }
+    [(0, 0); 4]
 }
 impl Tetris {
-    fn add(&mut self) {
-        if let None = self.current.kind {
-            return;
+    fn current_kind(&self) -> TetriminoTypes {
+        self.bag[self.current.bag_ind.unwrap()]
+    }
+
+    fn grid_kind(&self, row: usize, col: usize) -> Option<TetriminoTypes> {
+        if let Some(ind) = self.grid[row][col].bag_ind {
+            return Some(self.bag[ind]);
         }
-        let kind = self.current.kind.unwrap();
-        let offsets = get_tetrimino_offsets(&kind);
+        None
+    }
+
+    fn add(&mut self) {
+        let offsets = get_tetrimino_offsets(Some(self.current_kind()));
         for (x_off, y_off) in offsets {
             let row = (self.current.row as i32 + y_off) as usize;
             let col = (self.current.col as i32 + x_off) as usize;
-            let tetrimino = Tetrimino::new(Some(kind), row, col);
+            let mut tetrimino = Tetrimino::new(row, col);
+            tetrimino.is_current = true;
+            tetrimino.bag_ind = self.current.bag_ind;
             self.grid[row][col] = tetrimino;
         }
     }
 
     fn remove(&mut self) {
-        if let None = self.current.kind {
-            return;
-        }
-        let kind = self.current.kind.unwrap();
-        let offsets = get_tetrimino_offsets(&kind);
+        let offsets = get_tetrimino_offsets(Some(self.current_kind()));
         for (x_off, y_off) in offsets {
             let row = (self.current.row as i32 + y_off) as usize;
             let col = (self.current.col as i32 + x_off) as usize;
-            let tetrimino = Tetrimino::new(None, row, col);
+            let mut tetrimino = Tetrimino::new(row, col);
+            tetrimino.is_current = false;
             self.grid[row][col] = tetrimino;
         }
     }
@@ -126,16 +137,56 @@ impl Tetris {
         }
         self.bag[bag_ind] = list.remove(0);
         // Set the first element to be the current 0th index element
-        self.current = Tetrimino::new(Some(self.bag[0]), 0, 4);
+        self.current = Tetrimino::new(0, 4);
+        self.current.bag_ind = Some(0);
+        self.current.is_current = true;
+    }
+
+    fn update_bag(&mut self) {
+        // If the current tetrimino hasn't hit the ground, the bag should stay the same.
+        if self.current.row + 1 != GRID_HEIGHT {
+            return;
+        }
+        assert!(
+            self.current.bag_ind.is_some(),
+            "The current tetrimino's index in the \"bag\" shouldn't be None."
+        );
+        if let Some(ind) = self.current.bag_ind {
+            if ind + 1 != self.bag.len() {
+                self.current.bag_ind = Some(ind + 1);
+            } else {
+                self.generate_bag();
+            }
+        }
+    }
+
+    fn can_move_down(&self, tetrimino: &Tetrimino) -> bool {
+        let offsets = get_tetrimino_offsets(Some(self.bag[tetrimino.bag_ind.unwrap()]));
+        for (x_off, y_off) in offsets {
+            // The row below the current tetrimino's shape
+            let next_row = (tetrimino.row as i32 + y_off) as usize + 1;
+            // If any of side of the tetrimino hits the ground, the whole thing can't move down
+            if next_row >= GRID_HEIGHT {
+                return false;
+            }
+            let col = (tetrimino.col as i32 + x_off) as usize;
+            // If next_row and curr_row aren't equal &&
+            // If next row is some
+            if let Some(grid_kind) = self.grid_kind(next_row, col) {
+                if let Some(tetrimino_kind_ind) = tetrimino.bag_ind {
+                    if grid_kind == self.bag[tetrimino_kind_ind] {
+                        continue;
+                    }
+                    return false;
+                }
+            }
+        }
+        true
     }
 
     fn soft_drop(&mut self) {
-        // TODO: Find a way to to know lowest point of the current shape to use to check if tetrimino can move down
-        if self.current.row < GRID_HEIGHT
-            && self.grid[self.current.row + 2][self.current.col]
-                .kind
-                .is_none()
-        {
+        // TODO: Check if a tetrimino can move down even when its rotated a certain way
+        if self.can_move_down(&self.current) {
             // Remove current tetrimino from its previous position
             self.remove();
             // Update the current tetrimino's position
@@ -152,6 +203,7 @@ pub fn init(tetris: &mut Tetris) {
 }
 
 pub fn update(tetris: &mut Tetris) {
+    tetris.update_bag();
     tetris.soft_drop();
     // TODO: Find a way to delay a tetrimino's drop speed and prevent from instantly falling to the ground
 }
@@ -164,18 +216,21 @@ pub fn render(d: &mut RaylibDrawHandle, tetris: &Tetris) {
 }
 
 fn draw_next_tetrimino(d: &mut RaylibDrawHandle, tetris: &Tetris) {
-    // let next_tetrimino = tetris.bag[tetris.current.0 + 1];
-    let next_tetrimino = TetriminoTypes::Z;
+    assert!(
+        tetris.current.bag_ind.is_some(),
+        "The current tetrimino's index in the \"bag\" shouldn't be None."
+    );
+    let next_tetrimino = tetris.bag[tetris.current.bag_ind.unwrap() + 1];
+    // let next_tetrimino = TetriminoTypes::Z;
     let next_tetrimino_color = get_tetrimino_color(&next_tetrimino);
     let center = Vector2::new(750.0, 80.0);
-    let offsets = get_tetrimino_offsets(&next_tetrimino);
+    let offsets = get_tetrimino_offsets(Some(next_tetrimino));
     let padding = 1.5;
     for (x_off, y_off) in offsets {
         d.draw_rectangle_v(
             Vector2::new(
                 center.x + (x_off as f32 * MINO_SIZE) + (padding * x_off as f32),
                 center.y + (y_off as f32 * MINO_SIZE) + (padding * y_off as f32),
-                // center.y + (x_off as f32 * MINO_SIZE) + padding,
             ),
             Vector2::new(MINO_SIZE, MINO_SIZE),
             next_tetrimino_color,
@@ -194,7 +249,7 @@ fn draw_grid(d: &mut RaylibDrawHandle, tetris: &Tetris) {
     for y in 0..20 {
         for x in 0..10 {
             let mut curr_color = Color::from_hex("d4d4d4").unwrap();
-            if let Some(ref mino) = tetris.grid[y][x].kind {
+            if let Some(ref mino) = tetris.grid_kind(y, x) {
                 curr_color = get_tetrimino_color(mino);
             }
             d.draw_rectangle_v(
