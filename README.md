@@ -12,7 +12,9 @@ cargo run
 
 ## ROADMAP
 
-- [x] Creating grid
+- [x] Grid
+  - [x] Creating grid
+  - [x] Display grid
 - [ ] Tetrimonioes
   - [x] Spawn tetrimino
   - [x] Draw(Render) tetrimino
@@ -25,8 +27,9 @@ cargo run
   - [x] Show next tetrimino
   - [ ] Show held tetrimino
   - [x] Update bag when the current tetrimino hits the floor
-- [ ] Controls for tetriminoes
+- [ ] Controls
   - [ ] Move tetrimino
+    - [ ] Move left and right
     - [ ] Hard Drop
     - [ ] Soft Drop (Additional on down key press) 
   - [ ] Rotate tetrimino

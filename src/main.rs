@@ -15,7 +15,7 @@ fn main() {
         // .msaa_4x()
         .build();
 
-    rl.set_target_fps(60);
+    rl.set_target_fps(10);
 
     let mut tetris = Tetris::default();
     init_game(&mut tetris);
